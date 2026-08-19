@@ -96,12 +96,6 @@
                     </sc-if>
                   </sc-if>
                 </sc-for>
-                <div style="position:absolute;top:4px;right:4px;display:flex;gap:4px;z-index:2">
-                  <button class="btn btn-icon btn-ghost" style="width:24px;height:24px;min-width:24px;padding:0;background:color-mix(in srgb, var(--color-bg) 55%, transparent)" onClick="{{ p.addImg }}" aria-label="Añadir imagen"><i class="ph ph-plus" style="font-size:13px"></i></button>
-                  <sc-if value="{{ p.canRemoveImage }}" hint-placeholder-val="{{ false }}">
-                    <button class="btn btn-icon btn-ghost" style="width:24px;height:24px;min-width:24px;padding:0;background:color-mix(in srgb, var(--color-bg) 55%, transparent)" onClick="{{ p.removeImg }}" aria-label="Quitar imagen"><i class="ph ph-minus" style="font-size:13px"></i></button>
-                  </sc-if>
-                </div>
                 <sc-if value="{{ p.hasMultiple }}" hint-placeholder-val="{{ false }}">
                   <button class="btn btn-icon btn-ghost" style="{{ p.navBtnLeftStyle }}" onClick="{{ p.prevImg }}" aria-label="Anterior"><i class="ph ph-caret-left"></i></button>
                   <button class="btn btn-icon btn-ghost" style="{{ p.navBtnRightStyle }}" onClick="{{ p.nextImg }}" aria-label="Siguiente"><i class="ph ph-caret-right"></i></button>
@@ -127,7 +121,7 @@
     <main style="max-width:1000px;margin:0 auto;padding:var(--space-8) var(--space-6) 96px">
       <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-6)">
         <h1 style="font-size:40px">{{ t.cv.title }}</h1>
-        <a href="#" class="btn btn-primary"><i class="ph ph-download-simple"></i>{{ t.cv.downloadCv }}</a>
+        <a href="{{ t.cv.cvUrl }}" target="_blank" rel="noopener" class="btn btn-primary"><i class="ph ph-download-simple"></i>{{ t.cv.downloadCv }}</a>
       </div>
 
       <section style="margin-bottom:var(--space-8)">
@@ -537,7 +531,7 @@ class Component extends DCLogic {
           ctaResume:"Ver currículum", ctaProjects:"Ver proyectos" },
         stack: { label:"Stack habitual" },
         featured: { label:"Proyectos destacados", seeAll:"Ver todos" },
-        cv: { title:"Currículum", downloadCv:"Descargar CV (PDF)",
+        cv: { title:"Currículum", downloadCv:"Descargar CV (PDF)", cvUrl:"https://drive.google.com/file/d/1L_hfpSjbmJ6Q3gPD3XEfVIRPD1Kk0PMI/view?usp=sharing",
           profile: { title:"Perfil", body:"7 años en Unity   ·   7 plataformas (PlayStation, Xbox, Switch, Steam, WebGL, Android, iOS)   ·   Responsable de la arquitectura del Metaverso   ·   100% de certificaciones TRC/TCR superadas en múltiples plataformas", content:" Desarrollador Unity especializado en WebGL y metaversos multiplataforma: optimización de rendimiento/memoria, arquitecturas modulares y herramientas internas. Multijugador con Photon y Mirror; DOTS/ECS y shaders (HLSL) en aprendizaje activo." },
           aptitudes: { title:"Habilidades profesionales", items:["Resolución de incidencias complejas", "Investigación y análisis técnico", "Optimización de rendimiento y memoria", "Debugging y diagnóstico de problemas", "Trabajo en equipo", "Organización y planificación", "Adaptación rápida a nuevas tecnologías", "Desarrollo bajo presión y cumplimiento de plazos"] },
           experience: { title:"Experiencia", items:[
@@ -599,7 +593,7 @@ class Component extends DCLogic {
           ctaResume:"View resume", ctaProjects:"View projects" },
         stack: { label:"Regular stack" },
         featured: { label:"Featured projects", seeAll:"See all" },
-        cv: { title:"Resume", downloadCv:"Download CV (PDF)",
+        cv: { title:"Resume", downloadCv:"Download CV (PDF)", cvUrl:"https://drive.google.com/file/d/1DfYGWWqDAsm_WKO0JZ2KeFuY7GOwucYe/view?usp=sharing",
           profile: { title:"Profile", body:"7 years in Unity   ·   7 platforms (PlayStation, Xbox, Switch, Steam, WebGL, Android, iOS)   ·   Responsible for the Metaverse architecture   ·   100% of TRC/TCR certifications passed across multiple platforms" , content:"Unity Developer specialized in WebGL and cross-platform metaverses: performance/memory optimization, modular architectures and internal tooling. Multiplayer experience with Photon and Mirror; currently building skills in DOTS/ECS and shaders (HLSL)." },
           aptitudes: { title:"Professional Skills", items:["Complex issue resolution", "Technical research and analysis", "Performance and memory optimization", "Debugging and troubleshooting", "Teamwork", "Organization and planning", "Fast adaptation to new technologies", "Working under pressure and meeting deadline"] },
           experience: { title:"Experience", items:[

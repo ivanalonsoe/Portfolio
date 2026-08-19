@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="./styles.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.0.3"></script>
+<script src="./image-slot.js"></script>
+<style>
+  body{margin:0}
+  .fade-hr{height:1px;background:linear-gradient(to right,transparent,var(--color-divider) 48px,var(--color-divider) calc(100% - 48px),transparent);margin:0}
+  @media (max-width:760px){
+    .hero-grid{grid-template-columns:1fr !important}
+    .hero-photo{width:180px !important;height:180px !important;margin:0 auto}
+    .nav-links{display:none !important}
+  }
+</style>
+</helmet>
+
+<div style="background:var(--color-bg);color:var(--color-text);min-height:100vh;font-family:var(--font-body)">
+
+  <header class="nav" style="position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--color-bg) 88%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--color-divider)">
+    <a href="#/home" class="nav-brand" style="text-decoration:none;color:var(--color-text)" onClick="{{ goPage('home') }}">Iván Alonso</a>
+    <nav class="nav-links" style="display:flex;gap:var(--space-6);margin-right:auto">
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="3">
+        <a href="{{ item.href }}" style="{{ item.style }}" onClick="{{ item.onClick }}">{{ item.label }}</a>
+      </sc-for>
+    </nav>
+    <div class="seg" style="font-size:11px">
+      <label class="seg-opt" style="{{ segEsStyle }}">
+        <input type="radio" name="lang" checked="{{ isEs }}" onChange="{{ setLangEs }}">ES
+      </label>
+      <label class="seg-opt" style="{{ segEnStyle }}">
+        <input type="radio" name="lang" checked="{{ isEn }}" onChange="{{ setLangEn }}">EN
+      </label>
+    </div>
+  </header>
+
+  <!-- HOME -->
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+    <main style="max-width:1080px;margin:0 auto;padding:var(--space-8) var(--space-6) 96px">
+      <section class="hero-grid" style="display:grid;grid-template-columns:1fr 260px;gap:var(--space-8);align-items:center;padding-top:var(--space-8)">
+        <div>
+          <div class="tag tag-outline" style="margin-bottom:var(--space-4)">{{ t.hero.greeting }}</div>
+          <h1 style="font-size:56px;margin-bottom:var(--space-3)">Iván Alonso</h1>
+          <h2 style="font-size:22px;font-weight:400;color:var(--color-accent-300);margin-bottom:var(--space-4)">{{ t.hero.role }}</h2>
+          <p style="max-width:560px;opacity:0.85;font-size:16px;margin-bottom:var(--space-6)">{{ t.hero.bio }}</p>
+          <div style="display:flex;gap:var(--space-3);flex-wrap:wrap">
+            <a href="#/cv" class="btn btn-primary" onClick="{{ goPage('cv') }}"><i class="ph ph-file-text"></i>{{ t.hero.ctaResume }}</a>
+            <a href="#/projects" class="btn btn-secondary" onClick="{{ goPage('projects') }}"><i class="ph ph-game-controller"></i>{{ t.hero.ctaProjects }}</a>
+          </div>
+        </div>
+        <image-slot id="hero-photo" class="hero-photo lighten" shape="rounded" radius="14" style="width:260px;height:260px" src="images/hero-photo.png" placeholder="Foto profesional"></image-slot>
+      </section>
+
+      <hr class="fade-hr" style="margin:var(--space-8) 0">
+
+      <section>
+        <h6 style="color:var(--color-accent-300);margin-bottom:var(--space-4)">{{ t.stack.label }}</h6>
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap">
+          <sc-for list="{{ stackItems }}" as="s" hint-placeholder-count="10">
+            <span class="tag tag-accent">{{ s }}</span>
+          </sc-for>
+        </div>
+      </section>
+
+      <hr class="fade-hr" style="margin:var(--space-8) 0">
+
+      <section>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:var(--space-4)">
+          <h6 style="color:var(--color-accent-300)">{{ t.featured.label }}</h6>
+          <a href="#/projects" class="btn btn-ghost" onClick="{{ goPage('projects') }}">{{ t.featured.seeAll }}<i class="ph ph-arrow-right"></i></a>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--space-4)">
+          <sc-for list="{{ featuredProjects }}" as="p" hint-placeholder-count="3">
+            <div class="card elev-sm" style="cursor:pointer" onClick="{{ p.open }}">
+              <div style="position:relative;width:100%;height:130px;border-radius:8px;overflow:hidden;background:var(--color-neutral-800)">
+                <sc-for list="{{ p.slides }}" as="sl" hint-placeholder-count="2">
+                  <sc-if value="{{ sl.isImage }}" hint-placeholder-val="{{ true }}">
+                    <image-slot id="{{ sl.id }}" shape="rounded" radius="8" style="{{ sl.style }}" src="{{ sl.src }}" placeholder="{{ sl.hint }}"></image-slot>
+                  </sc-if>
+                  <sc-if value="{{ sl.isVideo }}" hint-placeholder-val="{{ false }}">
+                    <sc-if value="{{ sl.hasUrl }}" hint-placeholder-val="{{ false }}">
+                      <video src="{{ sl.url }}" controls="{{ true }}" onplay="{{ sl.onPlay }}" onpause="{{ sl.onPause }}" onloadedmetadata="{{ sl.onLoadedMetadata }}" style="{{ sl.style }}"></video>
+                    </sc-if>
+                    <sc-if value="{{ sl.needsUrl }}" hint-placeholder-val="{{ true }}">
+                      <div style="{{ sl.placeholderStyle }}" onClick="{{ stopClick }}">
+                        <i class="ph ph-video-camera" style="font-size:22px;color:var(--color-neutral-500)"></i>
+                        <input class="input" type="text" placeholder="URL del video (mp4, YouTube…)" onBlur="{{ sl.onCommit }}" style="width:90%;font-size:12px"></input>
+                      </div>
+                    </sc-if>
+                  </sc-if>
+                </sc-for>
+                <div style="position:absolute;top:4px;right:4px;display:flex;gap:4px;z-index:2">
+                  <button class="btn btn-icon btn-ghost" style="width:24px;height:24px;min-width:24px;padding:0;background:color-mix(in srgb, var(--color-bg) 55%, transparent)" onClick="{{ p.addImg }}" aria-label="Añadir imagen"><i class="ph ph-plus" style="font-size:13px"></i></button>
+                  <sc-if value="{{ p.canRemoveImage }}" hint-placeholder-val="{{ false }}">
+                    <button class="btn btn-icon btn-ghost" style="width:24px;height:24px;min-width:24px;padding:0;background:color-mix(in srgb, var(--color-bg) 55%, transparent)" onClick="{{ p.removeImg }}" aria-label="Quitar imagen"><i class="ph ph-minus" style="font-size:13px"></i></button>
+                  </sc-if>
+                </div>
+                <sc-if value="{{ p.hasMultiple }}" hint-placeholder-val="{{ false }}">
+                  <button class="btn btn-icon btn-ghost" style="{{ p.navBtnLeftStyle }}" onClick="{{ p.prevImg }}" aria-label="Anterior"><i class="ph ph-caret-left"></i></button>
+                  <button class="btn btn-icon btn-ghost" style="{{ p.navBtnRightStyle }}" onClick="{{ p.nextImg }}" aria-label="Siguiente"><i class="ph ph-caret-right"></i></button>
+                  <div style="position:absolute;bottom:6px;left:0;right:0;display:flex;justify-content:center;gap:5px;z-index:2">
+                    <sc-for list="{{ p.dots }}" as="d" hint-placeholder-count="3">
+                      <span style="{{ d.style }}" onClick="{{ d.onClick }}"></span>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+              <div class="card-kicker">{{ p.platform }}</div>
+              <div class="card-title">{{ p.title }}</div>
+              <p class="card-body">{{ p.tagline }}</p>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </main>
+  </sc-if>
+
+  <!-- CV -->
+  <sc-if value="{{ isCv }}" hint-placeholder-val="{{ false }}">
+    <main style="max-width:1000px;margin:0 auto;padding:var(--space-8) var(--space-6) 96px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-6)">
+        <h1 style="font-size:40px">{{ t.cv.title }}</h1>
+        <a href="#" class="btn btn-primary"><i class="ph ph-download-simple"></i>{{ t.cv.downloadCv }}</a>
+      </div>
+
+      <section style="margin-bottom:var(--space-8)">
+        <h6 style="color:var(--color-accent-300);margin-bottom:var(--space-3)">{{ t.cv.profile.title }}</h6>
+        <p style="font-size:16px;opacity:0.85;max-width:680px">{{ t.cv.profile.body }}</p>
+        <p style="font-size:16px;opacity:0.85;max-width:680px">{{ t.cv.profile.content }}</p>
+      </section>
+
+      <section style="margin-bottom:var(--space-8)">
+        <h6 style="color:var(--color-accent-300);margin-bottom:var(--space-3)">{{ t.cv.aptitudes.title }}</h6>
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap">
+          <sc-for list="{{ t.cv.aptitudes.items }}" as="a" hint-placeholder-count="4">
+            <span class="tag tag-neutral">{{ a }}</span>
+          </sc-for>
+        </div>
+      </section>
+
+      <section style="margin-bottom:var(--space-8)">
+        <h6 style="color:var(--color-accent-300);margin-bottom:var(--space-4)"><i class="ph ph-briefcase"></i> {{ t.cv.experience.title }}</h6>
+        <div style="display:flex;flex-direction:column;gap:var(--space-6)">
+          <sc-for list="{{ t.cv.experience.items }}" as="job" hint-placeholder-count="4">
+            <div style="display:grid;grid-template-columns:180px 1fr;gap:var(--space-4)">
+              <div style="font-size:12px;color:var(--color-neutral-500)">{{ job.period }}</div>
+              <div>
+                <div style="font-family:var(--font-heading);font-size:17px">{{ job.role }} <span style="color:var(--color-accent-300);font-weight:400">— {{ job.company }} | {{ job.location }}</span></div>
+                <p style="color:var(--color-accent-300);font-size:14px;opacity:0.8;margin-top:var(--space-2)">{{ job.title }}</p>
+                <p style="font-size:14px;opacity:0.8;margin-top:var(--space-2);white-space:pre-line">{{ job.body }}</p>
+                <sc-if value="{{ job.title2 }}" hint-placeholder-val="{{ false }}">
+                  <p style="color:var(--color-accent-300);font-size:14px;opacity:0.8;margin-top:var(--space-4)">{{ job.title2 }}</p>
+                  <p style="font-size:14px;opacity:0.8;margin-top:var(--space-2);white-space:pre-line">{{ job.body2 }}</p>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section style="margin-bottom:var(--space-8)">
+        <h6 style="color:var(--color-accent-300);margin-bottom:var(--space-4)"><i class="ph ph-graduation-cap"></i> {{ t.cv.education.title }}</h6>
+        <div style="display:flex;flex-direction:column;gap:var(--space-5)">
+          <sc-for list="{{ t.cv.education.items }}" as="ed" hint-placeholder-count="2">
+            <div style="display:grid;grid-template-columns:180px 1fr;gap:var(--space-4)">
+              <div style="font-size:12px;color:var(--color-neutral-500)">{{ ed.period }}</div>
+              <div>
+                <div style="font-family:var(--font-heading);font-size:17px">{{ ed.degree }}</div>
+                <div style="font-size:13px;color:var(--color-accent-300);margin-top:2px">{{ ed.school }}</div>
+                <sc-if value="{{ ed.thesis }}" hint-placeholder-val="{{ false }}">
+                  <p style="font-size:14px;opacity:0.8;margin-top:var(--space-2)">{{ ed.thesis }}</p>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section style="margin-bottom:var(--space-8)">
+        <h6 style="color:var(--color-accent-300);margin-bottom:var(--space-4)"><i class="ph ph-graduation-cap"></i> {{ t.cv.languages.title }}</h6>
+        <div style="display:flex;flex-direction:column;gap:var(--space-5)">
+          <sc-for list="{{ t.cv.languages.items }}" as="lang" hint-placeholder-count="2">
+            <div style="display:grid;grid-template-columns:300px 1fr;gap:var(--space-4)">
+              <div style="font-family:var(--font-heading);font-size:17px">{{ lang }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section>
+        <h6 style="color:var(--color-accent-300);margin-bottom:var(--space-4)">{{ t.cv.skills.title }}</h6>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-5)">
+          <sc-for list="{{ t.cv.skills.groups }}" as="g" hint-placeholder-count="4">
+            <div>
+              <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:var(--space-2)">{{ g.label }}</div>
+              <div style="display:flex;gap:var(--space-2);flex-wrap:wrap">
+                <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+                  <span class="tag tag-outline">{{ it }}</span>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </main>
+  </sc-if>
+
+  <!-- PROJECTS -->
+  <sc-if value="{{ isProjects }}" hint-placeholder-val="{{ false }}">
+    <main style="max-width:1080px;margin:0 auto;padding:var(--space-8) var(--space-6) 96px">
+      <h1 style="font-size:40px;margin-bottom:var(--space-2)">{{ t.projects.title }}</h1>
+      <p style="opacity:0.8;max-width:640px;margin-bottom:var(--space-8)">{{ t.projects.intro }}</p>
+
+      <h6 style="color:var(--color-accent-300);margin-bottom:var(--space-4)">{{ t.projects.primaryLabel }}</h6>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-4);margin-bottom:var(--space-8)">
+        <sc-for list="{{ primaryProjects }}" as="p" hint-placeholder-count="6">
+          <div class="card elev-sm" style="cursor:pointer" onClick="{{ p.open }}">
+            <div style="position:relative;width:100%;height:150px;border-radius:8px;overflow:hidden;background:var(--color-neutral-800)">
+              <sc-for list="{{ p.slides }}" as="sl" hint-placeholder-count="2">
+                <sc-if value="{{ sl.isImage }}" hint-placeholder-val="{{ true }}">
+                  <image-slot id="{{ sl.id }}" shape="rounded" radius="8" style="{{ sl.style }}" src="{{ sl.src }}" placeholder="{{ sl.hint }}"></image-slot>
+                </sc-if>
+                <sc-if value="{{ sl.isVideo }}" hint-placeholder-val="{{ false }}">
+                  <sc-if value="{{ sl.hasUrl }}" hint-placeholder-val="{{ false }}">
+                    <video src="{{ sl.url }}" controls="{{ true }}" onplay="{{ sl.onPlay }}" onpause="{{ sl.onPause }}" onloadedmetadata="{{ sl.onLoadedMetadata }}" style="{{ sl.style }}"></video>
+                  </sc-if>
+                  <sc-if value="{{ sl.needsUrl }}" hint-placeholder-val="{{ true }}">
+                    <div style="{{ sl.placeholderStyle }}" onClick="{{ stopClick }}">
+                      <i class="ph ph-video-camera" style="font-size:22px;color:var(--color-neutral-500)"></i>
+                      <input class="input" type="text" placeholder="URL del video (mp4, YouTube…)" onBlur="{{ sl.onCommit }}" style="width:90%;font-size:12px"></input>
+                    </div>
+                  </sc-if>
+                </sc-if>
+              </sc-for>
+              <!--<div style="position:absolute;top:4px;right:4px;display:flex;gap:4px">
+                <button class="btn btn-icon btn-ghost" style="width:24px;height:24px;min-width:24px;padding:0;background:color-mix(in srgb, var(--color-bg) 55%, transparent)" onClick="{{ p.addImg }}" aria-label="Añadir imagen"><i class="ph ph-plus" style="font-size:13px"></i></button>
+                <sc-if value="{{ p.canRemoveImage }}" hint-placeholder-val="{{ false }}">
+                  <button class="btn btn-icon btn-ghost" style="width:24px;height:24px;min-width:24px;padding:0;background:color-mix(in srgb, var(--color-bg) 55%, transparent)" onClick="{{ p.removeImg }}" aria-label="Quitar imagen"><i class="ph ph-minus" style="font-size:13px"></i></button>
+                </sc-if>
+              </div>
+            -->
+              <sc-if value="{{ p.hasMultiple }}" hint-placeholder-val="{{ false }}">
+                <button class="btn btn-icon btn-ghost" style="{{ p.navBtnLeftStyle }}" onClick="{{ p.prevImg }}" aria-label="Anterior"><i class="ph ph-caret-left"></i></button>
+                <button class="btn btn-icon btn-ghost" style="{{ p.navBtnRightStyle }}" onClick="{{ p.nextImg }}" aria-label="Siguiente"><i class="ph ph-caret-right"></i></button>
+                <!--<div style="position:absolute;bottom:6px;left:0;right:0;display:flex;justify-content:center;gap:5px">
+                  <sc-for list="{{ p.dots }}" as="d" hint-placeholder-count="3">
+                    <span style="{{ d.style }}" onClick="{{ d.onClick }}"></span>
+                  </sc-for>
+                </div>
+                -->
+              </sc-if>
+            </div>
+            <div class="card-kicker">{{ p.platform }}</div>
+            <div class="card-title">{{ p.title }}</div>
+            <p class="card-body">{{ p.tagline }}</p>
+            <div class="card-meta"><i class="ph ph-arrow-right"></i>{{ t.projects.viewDetail }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <h6 style="color:var(--color-accent-300);margin-bottom:var(--space-4)">{{ t.projects.secondaryLabel }}</h6>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--space-4)">
+        <sc-for list="{{ secondaryProjects }}" as="p" hint-placeholder-count="5">
+          <div class="card elev-sm" style="cursor:pointer" onClick="{{ p.open }}">
+            <div class="card-kicker">{{ p.platform }}</div>
+            <div class="card-title">{{ p.title }}</div>
+            <p class="card-body">{{ p.tagline }}</p>
+            <div class="card-meta"><i class="ph ph-arrow-right"></i>{{ t.projects.viewDetail }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </main>
+  </sc-if>
+
+  <sc-if value="{{ hasSelectedProject }}" hint-placeholder-val="{{ false }}">
+    <div class="dialog-backdrop" style="z-index:100" onClick="{{ closeProjectBackdrop }}">
+      <div class="dialog elev-lg" style="width:min(560px,100%)" onClick="{{ stopClick }}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-3)">
+          <div>
+            <div class="tag tag-accent" style="margin-bottom:var(--space-2)">{{ selected.platform }}</div>
+            <div class="dialog-title">{{ selected.title }}</div>
+          </div>
+          <button class="btn btn-icon btn-ghost" onClick="{{ closeProject }}"><i class="ph ph-x"></i></button>
+        </div>
+        <div style="position:relative;width:100%;height:220px;border-radius:8px;overflow:hidden;background:var(--color-neutral-800)">
+          <sc-for list="{{ selected.slides }}" as="sl" hint-placeholder-count="2">
+            <sc-if value="{{ sl.isImage }}" hint-placeholder-val="{{ true }}">
+              <image-slot id="{{ sl.id }}" shape="rounded" radius="8" style="{{ sl.style }}" src="{{ sl.src }}" placeholder="{{ sl.hint }}"></image-slot>
+            </sc-if>
+            <sc-if value="{{ sl.isVideo }}" hint-placeholder-val="{{ false }}">
+              <sc-if value="{{ sl.hasUrl }}" hint-placeholder-val="{{ false }}">
+                <video src="{{ sl.url }}" controls="{{ true }}" onplay="{{ sl.onPlay }}" onpause="{{ sl.onPause }}" onloadedmetadata="{{ sl.onLoadedMetadata }}" style="{{ sl.style }}"></video>
+              </sc-if>
+              <sc-if value="{{ sl.needsUrl }}" hint-placeholder-val="{{ true }}">
+                <div style="{{ sl.placeholderStyle }}" onClick="{{ stopClick }}">
+                  <i class="ph ph-video-camera" style="font-size:26px;color:var(--color-neutral-500)"></i>
+                  <input class="input" type="text" placeholder="URL del video (mp4, YouTube…)" onBlur="{{ sl.onCommit }}" style="width:80%;font-size:13px"></input>
+                </div>
+              </sc-if>
+            </sc-if>
+          </sc-for>
+          <!--<div style="position:absolute;top:6px;right:6px;display:flex;gap:4px">
+            <button class="btn btn-icon btn-ghost" style="width:26px;height:26px;min-width:26px;padding:0;background:color-mix(in srgb, var(--color-bg) 55%, transparent)" onClick="{{ selected.addImg }}" aria-label="Añadir imagen"><i class="ph ph-plus" style="font-size:14px"></i></button>
+            <sc-if value="{{ selected.canRemoveImage }}" hint-placeholder-val="{{ false }}">
+              <button class="btn btn-icon btn-ghost" style="width:26px;height:26px;min-width:26px;padding:0;background:color-mix(in srgb, var(--color-bg) 55%, transparent)" onClick="{{ selected.removeImg }}" aria-label="Quitar imagen"><i class="ph ph-minus" style="font-size:14px"></i></button>
+            </sc-if>
+          </div>
+        -->
+          <sc-if value="{{ selected.hasMultiple }}" hint-placeholder-val="{{ false }}">
+            <button class="btn btn-icon btn-ghost" style="{{ selected.navBtnLeftStyle }}" onClick="{{ selected.prevImg }}" aria-label="Anterior"><i class="ph ph-caret-left"></i></button>
+            <button class="btn btn-icon btn-ghost" style="{{ selected.navBtnRightStyle }}" onClick="{{ selected.nextImg }}" aria-label="Siguiente"><i class="ph ph-caret-right"></i></button>
+            <!--<div style="position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:6px">
+              <sc-for list="{{ selected.dots }}" as="d" hint-placeholder-count="3">
+                <span style="{{ d.style }}" onClick="{{ d.onClick }}"></span>
+              </sc-for>
+            </div>
+          -->
+          </sc-if>
+        </div>
+        <div class="dialog-body">{{ selected.desc }}</div>
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap">
+          <sc-for list="{{ selected.tags }}" as="tg" hint-placeholder-count="3">
+            <span class="tag tag-neutral">{{ tg }}</span>
+          </sc-for>
+        </div>
+        <div class="dialog-actions" style="justify-content:flex-start">
+          <sc-for list="{{ selected.links }}" as="lk" hint-placeholder-count="1">
+            <a href="{{ lk.url }}" target="_blank" rel="noopener" class="btn btn-secondary">{{ lk.label }}<i class="ph ph-arrow-up-right"></i></a>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <footer style="border-top:1px solid var(--color-divider);padding:var(--space-6) var(--space-6);max-width:1080px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:var(--space-4);flex-wrap:wrap">
+    <div style="display:flex;gap:var(--space-3)">
+      <a href="mailto:ivanelguezabal@gmail.com" class="btn btn-icon btn-secondary" aria-label="Email"><i class="ph ph-envelope-simple"></i></a>
+      <a href="https://www.linkedin.com/in/ivanalonsoelguezabal" target="_blank" rel="noopener" class="btn btn-icon btn-secondary" aria-label="LinkedIn"><i class="ph ph-linkedin-logo"></i></a>
+    </div>
+    <div style="font-size:12px;color:var(--color-neutral-500)">{{ t.footer.rights }}</div>
+  </footer>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const DATA = {
+  stack: ["Unity","C#","JSON","Addressables","WebGL","Android","iOS","XBOX","PlayStation","Switch","Steam","Porting","TRC","Profiler","Tools","Optimization","APIs","Git"],
+  projects: [
+    { id:"uttopion", primary:true, imageCount:0, video:true, platform:"Android · iOS · WebGL", title:"Uttopion",
+      videoUrl:"video/uttopion_video.mp4",
+      tagline:{es:"Metaverso sin barreras.",en:"A barrier-free metaverse."},
+      desc:{es:"Metaverso donde crear espacios personalizados y conectar con tu comunidad. Además se añadieron diferentes mijuegos in game y un sistema de retos. Luego transitó a un proyecto con minijuegos y metaverso separado donde realicé diferentes minijuegos y me encargue de la rama de metaverso al completo. Realicé labores de optimización, implementacion de conexión con Cloudflare R2, integracion de nuevas tecnologías como KTX2, integracion con REST APIs y APIs de terceros, etc.",en:"A metaverse where you can create personalized spaces and connect with your community. In addition, various in-game minigames and a challenge system were added. Later, it transitioned into a separate project with minigames and a metaverse where I developed several minigames and managed the entire metaverse branch. My responsibilities included optimization, implementing Cloudflare R2 connectivity, integrating new technologies like KTX2, and integrating with REST APIs and third-party APIs, among other things."},
+      tags:["Unity","UI","Addressables","Backend"], links:[{label:"Uttopion",url:"https://www.uttopion.es"}] },
+    { id:"ryans", primary:true, imageCount:6, video:true, platform:"Multiplataforma · 2D", title:"Ryan's Rescue Squad",
+      videoUrl:"video/ryans_video.mp4",
+      thumbs:["images/ryans-1.png","images/ryans-2.png","images/ryans-3.png","images/ryans-4.png","images/ryans-5.png","images/ryans-6.png"],
+      tagline:{es:"Plataformas 2.5D publicado por Outright Games.",en:"2.5D platformer published by Outright Games."},
+      desc:{es:"Es un juego de plataformas donde el objetido es que el youtuber Ryans rescate a los amigos de Ryan del Dark Titan. Responsable del cierre del proyecto: UI, nuevas mecánicas con Corgi Engine, implementación de audio, gestión de inputs, TRCs de varias plataformas, porting multiplataforma, addressables, localización y corrección de bugs.",en:"It's a platform game where the objective is for the YouTuber Ryans to rescue his friends from the Dark Titan. Responsibilities for project completion included: UI, new mechanics using the Corgi Engine, audio implementation, input management, multi-platform TRCs, cross-platform porting, addressables, localization, and bug fixes."},
+      tags:["Unity","UI","Corgi Engine","Localización"], links:[{label:"Outright Games",url:"https://outrightgames.com/games/ryans-rescue-squad/"}] },
+    { id:"malnazidos", primary:true, imageCount:1, video:false, platform:"PlayStation", title:"Malnazidos",
+      thumbs:["images/malnazidos-1.png"],
+      tagline:{es:"Acción y disparos en la guerra civil española.",en:"Action-shooter set in the Spanish Civil War."},
+      desc:{es:"Videojuego basado en la película de Mediaset. Responsable de audio y UI, implementación de nuevas mecánicas usando Bolt, testing y corrección de bugs.",en:"Based on the Mediaset film of the same name. Owned audio and UI, implemented new mechanics using Bolt, testing and bug fixing."},
+      tags:["Unity","Bolt","UI","Audio"], links:[{label:"PlayStation Store",url:"https://store.playstation.com/es-es/product/EP0811-CUSA18460_00-0000000000002020"}] },
+    { id:"waydown", primary:true, imageCount:1, video:false, platform:"PlayStation", title:"WayDown",
+      thumbs:["images/waydown-1.png"],
+      tagline:{es:"Puzles e investigación en el Banco de España.",en:"Puzzle and investigation game set in the Bank of Spain."},
+      desc:{es:"El robo del Banco de España para hacerse con el tesoro de Drake. Desarrollé el prototipo presentado al cliente y, después, los sistemas core: audio, cinemáticas y minijuegos, además de gameplay general.",en:"A heist on the Bank of Spain to secure Drake's treasure. Built the client-facing prototype, then owned core systems — audio, cinematics and minigames — plus general gameplay."},
+      tags:["Unity","Cinemáticas","Audio","Gameplay"], links:[{label:"PlayStation Store",url:"https://store.playstation.com/es-es/product/EP0811-CUSA29521_00-7605899481109362"}] },
+    { id:"aces", primary:true, imageCount:2, video:false, platform:"PlayStation", title:"Aces of the Multiverse",
+      thumbs:["images/aces-1.png","images/aces-2.png"],
+      tagline:{es:"Arcade de fútbol entre universos paralelos.",en:"Arcade football across parallel universes."},
+      desc:{es:"Fútbol arcade con personajes de distintas realidades. Desarrollo de mecánicas, UI, optimización y Addressables; después, modo liga, alineaciones personalizables y mejoras de vestuario y álbum.",en:"Arcade football with characters from parallel realities. Built mechanics, UI, optimization and Addressables; later added league mode, customizable lineups and wardrobe/album improvements."},
+      tags:["Unity","UI","Optimización","Addressables"], links:[{label:"PlayStation Store",url:"https://store.playstation.com/es-es/product/EP0811-CUSA17221_00-0000000000000000"}] },
+    { id:"reify", primary:true, imageCount:3, video:true, platform:"itch.io", title:"Reify",
+      videoUrl:"video/reify_video.mp4",
+      thumbs:["images/reify-1.png","images/reify-2.png","images/reify-3.png"],
+      tagline:{es:"Acción, sigilo y hack and slash. Trabajo de máster (9,5).",en:"Stealth-action hack and slash. Master's thesis (9.5/10)."},
+      desc:{es:"Videojuego de acción-aventura con infiltración y hack and slash desarrollado como trabajo de fin de máster.",en:"An action-adventure with infiltration and hack-and-slash combat, built as a master's thesis project."},
+      tags:["Unity","C#","Diseño de niveles"], links:[{label:"itch.io",url:"https://jimadan-ialonso.itch.io/reify"}] },
+    { id:"taxiwar", primary:true, imageCount:0, video:true, platform:"PC · Arcade", title:"Taxi War",
+      videoUrl:"video/taxiwar_video.mp4",
+      tagline:{es:"Arcade de conducción entre compañías rivales.",en:"Arcade driving game between rival taxi companies."},
+      desc:{es:"Conduce para una compañía de taxis y elimina a la competencia transportando pasajeros para ganar dinero. Proyecto de una asignatura del máster.",en:"Drive for a taxi company and eliminate the competition by earning money from fares. Built for a master's-degree course."},
+      tags:["Unity","C#","Gameplay"], links:[] },
+    { id:"rendering", primary:false, imageCount:2, video:false, platform:"C++ · Nori", title:{es:"Escenas de rendering",en:"Rendering scenes"},
+      thumbs:["images/rendering-1.png","images/rendering-2.png"],
+      tagline:{es:"Path tracing y ray tracing físicamente correctos.",en:"Physically-based path and ray tracing."},
+      desc:{es:"Escenas con botellas de cristal (dieléctricos), suelo con microfacetas (Beckmann), mapa de entorno y luz de área, con profundidad de campo y denoising (Non-Local Means). Motor Nori con path tracing (2048 spp). Implementación adicional de Whitted Ray Tracing con Monte Carlo. Mención de honor al segundo mejor render del concurso y nota de 10.",en:"Scenes with glass bottles (dielectrics), a Beckmann-microfacet floor, environment lighting and an area light, with depth of field and Non-Local Means denoising. Built in Nori with path tracing (2048 spp), plus a Whitted ray tracer with Monte Carlo sampling. Earned an Honorable Mention for second-best render and a 10/10 grade."},
+      tags:["C++","Path Tracing","Nori"], links:[] },
+    { id:"meshes", primary:false, imageCount:3, video:false, platform:"C++", title:{es:"Gestión de mallas",en:"Managing meshes"},
+       thumbs:["images/meshes-1.png","images/meshes-2.png","images/meshes-3.png"],
+     tagline:{es:"Algoritmos geométricos sobre mallas 3D.",en:"Geometry algorithms on 3D meshes."},
+      desc:{es:"Cálculo de área y shape factor con resaltado de triángulos, búsqueda de aristas de borde y distancias a la más cercana, y mapeo UV por coordenadas baricéntricas.",en:"Computed area and shape factor with triangle highlighting, found border edges and nearest-edge distances, and mapped UVs via barycentric coordinates."},
+      tags:["C++","Geometría"], links:[] },
+    { id:"massspring", primary:false, imageCount:1, video:false, platform:"Unity · C#", title:{es:"Modelo masa-muelle",en:"Mass-spring model"},
+      thumbs:["images/massspring-1.png"],
+      tagline:{es:"Motor de físicas propio para simular tela.",en:"A custom physics engine simulating cloth."},
+      desc:{es:"Motor de físicas propio aplicando el modelo masa-muelle con integración explícita, semi-implícita e implícita de Euler, Midpoint y Verlet. Simula una tela en movimiento libre con detección de colisiones.",en:"A custom physics engine applying the mass-spring model with explicit, semi-implicit and implicit Euler, Midpoint and Verlet integration. Simulates free-moving cloth with collision detection."},
+      tags:["Unity","C#","Físicas"], links:[] },
+    { id:"haptic", primary:false, imageCount:1, video:false, platform:"Novint Falcon", title:{es:"Juego háptico accesible",en:"Accessible haptic game"},
+      thumbs:["images/haptic-1.png"],
+      tagline:{es:"Hundir la flota sin imagen, con audio y háptica.",en:"Battleship with no screen — audio and haptic feedback only."},
+      desc:{es:"Juego de tipo hundir la flota pensado para personas ciegas o con baja visión, jugado solo con audio y retroalimentación háptica mediante el dispositivo Novint Falcon.",en:"A Battleship-style game designed for blind and low-vision players, playable through audio and haptic feedback alone via the Novint Falcon device."},
+      tags:["Accesibilidad","Háptica"], links:[] },
+    { id:"cuda", primary:false, imageCount:4, video:true, platform:"CUDA · Unity", title:{es:"CUDA y render de hierba",en:"CUDA & grass rendering"},
+      videoUrl:"video/cuda_video.mp4",
+      thumbs:["images/cuda-1.png","images/cuda-2.png","images/cuda-3.png","images/cuda-4.png"],
+      tagline:{es:"Tone mapping, box filter e hierba instanciada.",en:"Tone mapping, box filtering and instanced grass."},
+      desc:{es:"Prácticas de paralelismo con CUDA (tone mapping y box filter con memoria compartida) y un sistema de render de hierba a partir de una imagen 2D en Unity mediante instanciación.",en:"CUDA parallelism exercises (tone mapping and a shared-memory box filter) plus a grass-rendering system in Unity that instances blades from a 2D image."},
+      tags:["CUDA","Unity","Rendering"], links:[] }
+  ]
+};
+
+const SLIDE_COUNTS = {};
+DATA.projects.forEach(p => { SLIDE_COUNTS[p.id] = (p.imageCount ?? 1) + (p.video ? 1 : 0); });
+
+class Component extends DCLogic {
+  state = { page: "home", lang: "es", selectedId: null, galleryIndex: {}, galleryPaused: {}, videoUrls: {}, imageCounts: {}, videoPlaying: {} };
+
+  componentDidMount() {
+    const apply = () => {
+      const h = (location.hash || "").replace("#/", "");
+      if (["home","cv","projects"].includes(h)) this.setState({ page: h });
+    };
+    apply();
+    this._onHash = apply;
+    window.addEventListener("hashchange", this._onHash);
+    this._galleryInterval = setInterval(() => {
+      const now = Date.now();
+      this.setState(s => {
+        const gi = { ...s.galleryIndex };
+        DATA.projects.forEach(pr => {
+          const imageCount = s.imageCounts[pr.id] ?? pr.imageCount ?? 1;
+          const count = imageCount + (pr.video ? 1 : 0);
+          const pausedUntil = s.galleryPaused[pr.id] || 0;
+          const curIdx = gi[pr.id] || 0;
+          const videoSlideActive = pr.video && curIdx === imageCount;
+          const videoIsPlaying = videoSlideActive && s.videoPlaying[pr.id];
+          if (pausedUntil <= now && count > 1 && !videoIsPlaying) gi[pr.id] = ((gi[pr.id] || 0) + 1) % count;
+        });
+        return { galleryIndex: gi };
+      });
+    }, 4000);
+  }
+  componentDidUpdate(prevProps) {
+    if (this.state.selectedId && this.state.selectedId !== this._prevSelectedId) {
+      document.querySelectorAll("video").forEach(v => v.pause());
+    }
+    this._prevSelectedId = this.state.selectedId;
+  }
+  componentWillUnmount() {
+    window.removeEventListener("hashchange", this._onHash);
+    clearInterval(this._galleryInterval);
+  }
+
+  go(page) { return (e) => { if (e) e.preventDefault(); location.hash = "#/" + page; this.setState({ page }); }; }
+
+  stepImage(id, delta, count) {
+    return (e) => {
+      if (e) e.stopPropagation();
+      this.setState(s => {
+        const cur = s.galleryIndex[id] || 0;
+        const next = (cur + delta + count) % count;
+        return {
+          galleryIndex: { ...s.galleryIndex, [id]: next },
+          galleryPaused: { ...s.galleryPaused, [id]: Date.now() + 8000 }
+        };
+      });
+    };
+  }
+  setImage(id, idx) {
+    return (e) => {
+      if (e) e.stopPropagation();
+      this.setState(s => ({
+        galleryIndex: { ...s.galleryIndex, [id]: idx },
+        galleryPaused: { ...s.galleryPaused, [id]: Date.now() + 8000 }
+      }));
+    };
+  }
+  setVideoUrl(id) {
+    return (e) => {
+      const val = e.target.value.trim();
+      this.setState(s => ({ videoUrls: { ...s.videoUrls, [id]: val } }));
+    };
+  }
+  onVideoPlay(id) {
+    return () => this.setState(s => ({ videoPlaying: { ...s.videoPlaying, [id]: true } }));
+  }
+  onVideoPause(id) {
+    return () => this.setState(s => ({ videoPlaying: { ...s.videoPlaying, [id]: false } }));
+  }
+  onVideoLoadedMetadata(e) {
+    try {
+      const d = e.target.duration;
+      e.target.currentTime = Number.isFinite(d) ? Math.min(1, d / 2) : 1;
+    } catch {}
+  }
+  addImage(id, base) {
+    return (e) => {
+      if (e) e.stopPropagation();
+      this.setState(s => {
+        const cur = s.imageCounts[id] ?? base;
+        return { imageCounts: { ...s.imageCounts, [id]: Math.min(cur + 1, 8) } };
+      });
+    };
+  }
+  removeImage(id, base) {
+    return (e) => {
+      if (e) e.stopPropagation();
+      this.setState(s => {
+        const cur = s.imageCounts[id] ?? base;
+        if (cur <= 1) return null;
+        const next = cur - 1;
+        const gi = Math.min(s.galleryIndex[id] || 0, next - 1);
+        return { imageCounts: { ...s.imageCounts, [id]: next }, galleryIndex: { ...s.galleryIndex, [id]: gi } };
+      });
+    };
+  }
+
+  renderVals() {
+    const lang = this.state.lang;
+    const page = this.state.page;
+    const T = {
+      es: {
+        nav: { home:"Inicio", cv:"Currículum", projects:"Portfolio" },
+        hero: { greeting:"Disponible para nuevos retos", role:"Unity Developer | Gameplay · Systems · Optimization · Tools",
+          bio:"Desarrollador Unity especializado en WebGL y metaversos multiplataforma: optimización de rendimiento/memoria, arquitecturas modulares y herramientas internas. Multijugador con Photon y Mirror; DOTS/ECS y shaders (HLSL) en aprendizaje activo.",
+          ctaResume:"Ver currículum", ctaProjects:"Ver proyectos" },
+        stack: { label:"Stack habitual" },
+        featured: { label:"Proyectos destacados", seeAll:"Ver todos" },
+        cv: { title:"Currículum", downloadCv:"Descargar CV (PDF)",
+          profile: { title:"Perfil", body:"7 años en Unity   ·   7 plataformas (PlayStation, Xbox, Switch, Steam, WebGL, Android, iOS)   ·   Responsable de la arquitectura del Metaverso   ·   100% de certificaciones TRC/TCR superadas en múltiples plataformas", content:" Desarrollador Unity especializado en WebGL y metaversos multiplataforma: optimización de rendimiento/memoria, arquitecturas modulares y herramientas internas. Multijugador con Photon y Mirror; DOTS/ECS y shaders (HLSL) en aprendizaje activo." },
+          aptitudes: { title:"Habilidades profesionales", items:["Resolución de incidencias complejas", "Investigación y análisis técnico", "Optimización de rendimiento y memoria", "Debugging y diagnóstico de problemas", "Trabajo en equipo", "Organización y planificación", "Adaptación rápida a nuevas tecnologías", "Desarrollo bajo presión y cumplimiento de plazos"] },
+          experience: { title:"Experiencia", items:[
+            { 
+              period:"Oct. 2021 — Jul. 2026",
+              role:"Desarrollador mid de videojuegos y metaverso", 
+              company:"Uttopion",
+              place: "Madrid, España | Remoto",
+              title:"Metaverso 3.0 (WebGL)",
+              body:"- Responsable único de la rama Metaverso dentro de una arquitectura modular, liderando su evolución técnica de forma autónoma.\n- Optimicé el sistema Serializable Scene mediante deduplicación de recursos y mejoras de arquitectura, reduciendo el tiempo de reconstrucción dinámica de escena y el consumo de memoria.\n- Colaboré con el CEO en el diseño del pipeline de contenido remoto con Cloudflare R2 y compresión de texturas KTX2, y lo implementé por completo, agilizando la entrega de builds distribuidas.\n- Desarrollé varios minijuegos y los integré en el framework interno, ampliando el catálogo de experiencias del metaverso.\n- Integré el metaverso con el backend mediante REST APIs y APIs de terceros, manteniendo la sincronización estable entre cliente y servidor.",
+              title2:"Metaverso 2.0 (WebGL / Android / iOS)",
+              body2:"- Lancé un metaverso 3D funcional en tres plataformas (WebGL, Android, iOS), desarrollando su arquitectura y herramientas internas de Unity.\n- Reduje el consumo de memoria y mejoré el rendimiento de la build de WebGL mediante optimización continua con el Unity Profiler.\n- Mantuve un ciclo de entregas estable, generando y gestionando builds multiplataforma de forma recurrente para WebGL, Android e iOS.\n- Conecté el metaverso con servicios externos integrando backend y APIs de terceros."
+            },
+            { 
+              period:"Abr. 2021 — Oct. 2021", 
+              role:"Desarrollador junior de videojuegos", 
+              company:"Stage Clear Studios",
+              place: "Remoto", 
+              title:"Ryan's Rescue Squad (Switch, Xbox, PlayStation 4|5, Steam)",
+              body:"- Certifiqué el juego en cuatro plataformas (Switch, Xbox, PlayStation 4|5, Steam), superando los requisitos TRC/TCR mediante porting y adaptación técnica.\n- Reduje los tiempos de carga optimizando la gestión de Addressables y la configuración de builds.\n- Adapté el juego a múltiples mercados implementando el sistema de localización multi-idioma.\n- Mantuve la estabilidad del juego en producción desarrollando nuevas funcionalidades y resolviendo incidencias de forma continua.",
+              title2:"",
+              body2:""
+            },
+            { 
+              period:"Sept. 2019 — Abr. 2021", 
+              role:"Desarrollador junior de videojuegos", 
+              company:"Gammera Nest", 
+              place: "Madrid, España",
+              title:"Estudio y publisher, motor operativo del programa PlayStation Talents de Sony Interactive Entertainment España",
+              body:"- Programé gameplay, UI, audio y herramientas de editor, contribuyendo al desarrollo de videojuegos propios para PlayStation.\n- Certifiqué títulos cumpliendo los requisitos TRC multiplataforma exigidos por Sony.\n- Mejoré la mantenibilidad del código optimizando y refactorizando módulos existentes.\n- Di soporte técnico a los estudios del programa PlayStation Talents según sus necesidades: testeo en dev kits de PlayStation y detección de incidencias antes de certificación.\n- Trasladé el conocimiento aprendido de mi responsable senior a los equipos de Talents que lo necesitaban, en buenas prácticas de programación y flujos de desarrollo.",
+              title2:"",
+              body2:""
+            }
+          ]},
+          education: { title:"Formación", items:[
+            { period:"2017 — 2019", degree:"Máster en Informática Gráfica, Realidad Virtual y Videojuegos", school:"Universidad Rey Juan Carlos", thesis:"Trabajo fin de máster: “Videojuego de aventuras en tercera persona multiplataforma” — nota 9,5." },
+            { period:"2012 — 2017", degree:"Grado en Ingeniería Informática", school:"Universidad Politécnica de Madrid", thesis:"Proyecto fin de grado: “Generación de modelos virtuales urbanos 3D para la arquitectura y la ingeniería” — nota 10." },
+            { period:"2025 — Presente", degree:"Máster en Desarrollo con IA — formación complementaria", school:"The Big School", thesis:"" }
+          ]},
+          skills: { title:"Habilidades técnicas", groups:[
+            { label:"Motor", items:["Unity (C#, JSON, TypeScript)"] },
+            { label:"Plataforma", items:["PlayStation", "Xbox", "Switch", "Steam", "WebGL", "Android", "iOS", "Porting & TRC/TCR"] },
+            { label:"Multijugador", items:["Photon", "Mirror"] },
+            { label:"Optimizacion", items:["Cloudflare R2", "Addressables", "pooling", "KTX2", "Unity Profiler", "Memory Profiler"] },
+            { label:"En aprendizaje", items:["DOTS/ECS", "Shaders (HLSL)"] },
+            { label:"Backend & herramientas", items:["REST APIs", "Git/GitHub", "Editor Tools"] }
+          ]},
+          profesionalSkills: { title:"Habilidades profesionales", 
+            items:["Resolución de incidencias complejas", "Investigación y análisis técnico", "Optimización de rendimiento y memoria", "Debugging y diagnóstico de problemas", "Trabajo en equipo", "Organización y planificación", "Adaptación rápida a nuevas tecnologías", "Desarrollo bajo presión y cumplimiento de plazos"] },
+          languages: { title:"Idiomas", items:["Español (nativo)","Inglés: B2 (Aptis), Cambridge PET"] }
+        },
+        projects: { title:"Portfolio", intro:"Una selección de los proyectos comerciales, académicos y personales en los que he trabajado.", primaryLabel:"Proyectos", secondaryLabel:"Proyectos académicos y técnicos", viewDetail:"Ver detalle" },
+        footer: { rights:"© 2026 Iván Alonso." }
+      },
+      en: {
+        nav: { home:"Home", cv:"Resume", projects:"Portfolio" },
+        hero: { greeting:"Open to new opportunities", role:"Unity Developer | Gameplay · Systems · Optimization · Tools",
+          bio:"Unity Developer specialized in WebGL and cross-platform metaverses: performance/memory optimization, modular architectures and internal tooling. Multiplayer experience with Photon and Mirror; currently building skills in DOTS/ECS and shaders (HLSL).",
+          ctaResume:"View resume", ctaProjects:"View projects" },
+        stack: { label:"Regular stack" },
+        featured: { label:"Featured projects", seeAll:"See all" },
+        cv: { title:"Resume", downloadCv:"Download CV (PDF)",
+          profile: { title:"Profile", body:"7 years in Unity   ·   7 platforms (PlayStation, Xbox, Switch, Steam, WebGL, Android, iOS)   ·   Responsible for the Metaverse architecture   ·   100% of TRC/TCR certifications passed across multiple platforms" , content:"Unity Developer specialized in WebGL and cross-platform metaverses: performance/memory optimization, modular architectures and internal tooling. Multiplayer experience with Photon and Mirror; currently building skills in DOTS/ECS and shaders (HLSL)." },
+          aptitudes: { title:"Professional Skills", items:["Complex issue resolution", "Technical research and analysis", "Performance and memory optimization", "Debugging and troubleshooting", "Teamwork", "Organization and planning", "Fast adaptation to new technologies", "Working under pressure and meeting deadline"] },
+          experience: { title:"Experience", items:[
+          { 
+              period:"Oct. 2021 — Jul. 2026",
+              role:"Mid-level Game & Metaverse Developer", 
+              company:"Uttopion",
+              location: "Madrid, Spain | Remote",
+              title:"Metaverse 3.0 (WebGL)",
+              body:"- Sole owner of the Metaverse branch within a modular architecture, independently leading its technical evolution.\n - Optimized the Serializable Scene system through resource deduplication and architectural improvements, reducing dynamic scene rebuild time and memory usage.\n - Collaborated with the CEO on the design of a remote content pipeline using Cloudflare R2 and KTX2 texture compression, and implemented it end to end, speeding up distributed build delivery.\n - Developed several mini-games and integrated them into the internal framework, expanding the metaverse’s catalog of experiences.\n - Integrated the metaverse with the backend via REST APIs and third-party APIs, keeping client-server synchronization stable.",
+              title2:"Metaverse 2.0 (WebGL / Android / iOS)",
+              body2:"- Launched a functional 3D metaverse across three platforms (WebGL, Android, iOS), developing its architecture and internal Unity tooling.\n - Reduced memory usage and improved WebGL build performance through continuous optimization using the Unity Profiler.\n - Maintained a stable release cycle, generating and managing cross-platform builds on a recurring basis for WebGL, Android and iOS.\n - Connected the metaverse to external services by integrating backend and third-party APIs."
+            },
+            { 
+              period:"Abr. 2021 — Oct. 2021", 
+              role:"Junior Game Developer", 
+              company:"Stage Clear Studios",
+              location: "Remote", 
+              title:"Ryan's Rescue Squad (Switch, Xbox, PlayStation 4|5, Steam)",
+              body:"- Certified the game across four platforms (Switch, Xbox, PlayStation 4|5, Steam), passing TRC/TCR requirements through porting and technical adaptation.\n - Reduced load times by optimizing Addressables management and build configuration.\n - Adapted the game for multiple markets by implementing a multi-language localization system.\n - Maintained the game’s stability in production by developing new features and continuously resolving issues.",
+              title2:"",
+              body2:""
+            },
+            { 
+              period:"Sept. 2019 — Abr. 2021", 
+              role:"Junior Game Developer", 
+              company:"Gammera Nest", 
+              location: "Madrid, Spain",
+              title:"Studio and publisher, operational driver of the PlayStation Talents program by Sony Interactive Entertainment Spain",
+              body:"- Programmed gameplay, UI, audio and editor tools, contributing to the development of in-house games for PlayStation.\n - Certified titles by meeting the cross-platform TRC requirements set by Sony.\n - Improved code maintainability by optimizing and refactoring existing modules.\n - Provided technical support to studios in the PlayStation Talents program based on their needs: testing on PlayStation dev kits and identifying issues ahead of certification.\n - Passed on knowledge learned from my senior lead to the Talents teams that needed it, covering programming best practices and development workflows.",
+              title2:"",
+              body2:""
+            }  
+          ]},
+          education: { title:"Education", items:[
+            { period:"2017 — 2019", degree:"MSc in Computer Graphics, Virtual Reality and Video Games", school:"Universidad Rey Juan Carlos", thesis:"Thesis: “Multiplatform third-person adventure game” — grade 9.5." },
+            { period:"2012 — 2017", degree:"BSc in Computer Engineering", school:"Universidad Politécnica de Madrid", thesis:"Final project: “3D urban virtual model generation for architecture and engineering” — grade 10." },
+            { period:"2025 — Presente", degree:"Master’s in AI Development — supplementary training", school:"The Big School", thesis:"" }
+          ]},
+          skills: { title:"Technical skills", groups:[
+            { label:"Engine", items:["Unity (C#, JSON, TypeScript)"] },
+            { label:"Platforms", items:["PlayStation", "Xbox", "Switch", "Steam", "WebGL", "Android", "iOS", "Porting & TRC/TCR"] },
+            { label:"Multiplayer", items:["Photon", "Mirror"] },
+            { label:"Optimization", items:["Cloudflare R2", "Addressables", "pooling", "KTX2", "Unity Profiler", "Memory Profiler"] },
+            { label:"Currently learning", items:["DOTS/ECS", "Shaders (HLSL)"] },
+            { label:"Backend & Tools", items:["REST APIs", "Git/GitHub", "Editor Tools"] }
+          ]},
+          profesionalSkills: { title:"Professional skills", 
+            items:["Complex issue resolution", "Technical research and analysis", "Performance and memory optimization", "Debugging and troubleshooting", "Teamwork", "Organization and planning", "Fast adaptation to new technologies", "Working under pressure and meeting deadline"] },
+          languages: { title:"Languages", items:["Spanish (native)","English: B2 (Aptis), Cambridge PET"] }
+        },
+        projects: { title:"Portfolio", intro:"A selection of the commercial, academic and personal projects I've worked on.", primaryLabel:"Projects", secondaryLabel:"Academic & technical projects", viewDetail:"View detail" },
+        footer: { rights:"© 2026 Iván Alonso." }
+      }
+    }[lang];
+
+    const navBtnBase = { position:"absolute", top:"50%", transform:"translateY(-50%)", width:"28px", height:"28px", minWidth:"28px", padding:"0", background:"color-mix(in srgb, var(--color-bg) 55%, transparent)", zIndex:2 };
+    const slideStyle = (active) => ({ position:"absolute", inset:0, width:"100%", height:"100%", opacity: active ? 1 : 0, transition:"opacity 0.35s ease", pointerEvents: active ? "auto" : "none", zIndex: active ? 1 : 0 });
+    const localize = (p) => {
+      const title = typeof p.title === "string" ? p.title : p.title[lang];
+      const baseImageCount = p.imageCount ?? 1;
+      const imageCount = this.state.imageCounts[p.id] ?? baseImageCount;
+      const count = imageCount + (p.video ? 1 : 0);
+      const idx = Math.min(this.state.galleryIndex[p.id] || 0, count - 1);
+      const videoUrl = this.state.videoUrls[p.id] || p.videoUrl || "";
+      const slides = [];
+      for (let j = 0; j < imageCount; j++) {
+        slides.push({
+          isImage: true, isVideo: false,
+          id: "img-" + p.id + "-" + j,
+          src: (p.thumbs && p.thumbs[j]) || "",
+          hint: title + " — captura " + (j + 1),
+          style: slideStyle(j === idx)
+        });
+      }
+      if (p.video) {
+        const j = imageCount;
+        slides.push({
+          isImage: false, isVideo: true,
+          hasUrl: !!videoUrl, needsUrl: !videoUrl, url: videoUrl,
+          onCommit: this.setVideoUrl(p.id),
+          onPlay: this.onVideoPlay(p.id),
+          onPause: this.onVideoPause(p.id),
+          onLoadedMetadata: this.onVideoLoadedMetadata,
+          style: { ...slideStyle(j === idx), display: j === idx ? "block" : "none", objectFit:"contain", background:"#000" },
+          placeholderStyle: { ...slideStyle(j === idx), display: j === idx ? "flex" : "none", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:"8px", background:"var(--color-neutral-800)", border:"1px dashed var(--color-divider)", padding:"12px", boxSizing:"border-box", textAlign:"center" }
+        });
+      }
+      const dots = Array.from({ length: count }, (_, j) => ({
+        style: { width:"6px", height:"6px", borderRadius:"50%", cursor:"pointer", background: j === idx ? "var(--color-accent)" : "color-mix(in srgb, var(--color-text) 40%, transparent)" },
+        onClick: this.setImage(p.id, j)
+      }));
+      return {
+        ...p,
+        title,
+        tagline: p.tagline[lang],
+        desc: p.desc[lang],
+        slides, dots, hasMultiple: count > 1,
+        canRemoveImage: idx < imageCount && imageCount > 1,
+        navBtnLeftStyle: { ...navBtnBase, left:"4px" },
+        navBtnRightStyle: { ...navBtnBase, right:"4px" },
+        prevImg: this.stepImage(p.id, -1, count),
+        nextImg: this.stepImage(p.id, 1, count),
+        addImg: this.addImage(p.id, baseImageCount),
+        removeImg: this.removeImage(p.id, baseImageCount),
+        open: (e) => { if (e) e.preventDefault(); this.setState({ selectedId: p.id }); }
+      };
+    };
+
+    const allProjects = DATA.projects.map(localize);
+    const selected = allProjects.find(p => p.id === this.state.selectedId) || null;
+
+    const navRaw = [
+      { id:"home", label:T.nav.home },
+      { id:"cv", label:T.nav.cv },
+      { id:"projects", label:T.nav.projects }
+    ];
+    const navItems = navRaw.map(n => ({
+      href: "#/" + n.id, label: n.label, onClick: this.go(n.id),
+      style: { color: page === n.id ? "var(--color-accent)" : "var(--color-text)", textDecoration:"none", fontSize:"14px" }
+    }));
+
+    const segBase = { display:"flex", alignItems:"center", padding:"6px 12px", fontSize:"11px", cursor:"pointer" };
+    const segEsStyle = { ...segBase, color: lang==="es" ? "var(--color-accent)" : "var(--color-text)", boxShadow: lang==="es" ? "inset 0 0 0 1px var(--color-accent)" : "none" };
+    const segEnStyle = { ...segBase, color: lang==="en" ? "var(--color-accent)" : "var(--color-text)", boxShadow: lang==="en" ? "inset 0 0 0 1px var(--color-accent)" : "none", borderLeft:"1px solid var(--color-divider)" };
+
+    return {
+      t: T,
+      lang, isEs: lang === "es", isEn: lang === "en",
+      setLangEs: () => this.setState({ lang: "es" }), setLangEn: () => this.setState({ lang: "en" }),
+      segEsStyle, segEnStyle,
+      navItems,
+      isHome: page === "home", isCv: page === "cv", isProjects: page === "projects",
+      goPage: (p) => this.go(p),
+      stackItems: DATA.stack,
+      featuredProjects: allProjects.filter(p => p.primary).slice(0, 3),
+      primaryProjects: allProjects.filter(p => p.primary),
+      secondaryProjects: allProjects.filter(p => !p.primary),
+      hasSelectedProject: !!selected,
+      selected: selected || {},
+      closeProject: () => this.setState({ selectedId: null }),
+      closeProjectBackdrop: (e) => { if (e.target === e.currentTarget) this.setState({ selectedId: null }); },
+      stopClick: (e) => e.stopPropagation()
+    };
+  }
+}
+
+</script>
+</body>
+</html>
